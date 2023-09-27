@@ -1,2 +1,5 @@
 # FMC
-future market data collect
+中国期货市场数据采集，默认采集所有期货行情
+
+# TODO
+1 数据自动打包上传云盘脚本
