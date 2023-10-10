@@ -1,136 +1,138 @@
-#include "TraderSpi.h"
+ï»¿#include "TraderSpi.h"
 
 #include "spdlog/spdlog.h"
 
-///µ±¿Í»§¶ËÓë½»Ò×ºóÌ¨½¨Á¢ÆğÍ¨ĞÅÁ¬½ÓÊ±£¨»¹Î´µÇÂ¼Ç°£©£¬¸Ã·½·¨±»µ÷ÓÃ¡£
+/// å½“å®¢æˆ·ç«¯ä¸äº¤æ˜“åå°å»ºç«‹èµ·é€šä¿¡è¿æ¥æ—¶ï¼ˆè¿˜æœªç™»å½•å‰ï¼‰ï¼Œè¯¥æ–¹æ³•è¢«è°ƒç”¨ã€‚
 void TraderSpi::OnFrontConnected()
 {
-	spdlog::info("½»Ò×Ç°ÖÃÁ¬½Ó³É¹¦...");
+	spdlog::info("äº¤æ˜“å‰ç½®è¿æ¥æˆåŠŸ...");
 
-	CThostFtdcReqAuthenticateField authenticateField{ 0 };
+	CThostFtdcReqAuthenticateField authenticateField{0};
 
-	strcpy_s(authenticateField.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
-	strcpy_s(authenticateField.UserID, (*config)["Front"]["UserID"].as<std::string>().c_str());
-	strcpy_s(authenticateField.UserProductInfo, (*config)["Front"]["UserProductInfo"].as<std::string>().c_str());
-	strcpy_s(authenticateField.AuthCode, (*config)["Front"]["AuthCode"].as<std::string>().c_str());
-	strcpy_s(authenticateField.AppID, (*config)["Front"]["AppID"].as<std::string>().c_str());
+	strcpy(authenticateField.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
+	strcpy(authenticateField.UserID, (*config)["Front"]["UserID"].as<std::string>().c_str());
+	strcpy(authenticateField.UserProductInfo, (*config)["Front"]["UserProductInfo"].as<std::string>().c_str());
+	strcpy(authenticateField.AuthCode, (*config)["Front"]["AuthCode"].as<std::string>().c_str());
+	strcpy(authenticateField.AppID, (*config)["Front"]["AppID"].as<std::string>().c_str());
 
 	int requestID = 0;
 
 	int rt = tdapi->ReqAuthenticate(&authenticateField, requestID);
 	if (!rt)
-		spdlog::info("ÈÏÖ¤ÇëÇó³É¹¦...");
+		spdlog::info("è®¤è¯è¯·æ±‚æˆåŠŸ...");
 	else
-		spdlog::info("ÈÏÖ¤ÇëÇóÊ§°Ü...");
-
+		spdlog::info("è®¤è¯è¯·æ±‚å¤±è´¥...");
 }
 
-///¿Í»§¶ËÈÏÖ¤ÏìÓ¦
-void TraderSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField* pRspAuthenticateField, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// å®¢æˆ·ç«¯è®¤è¯å“åº”
+void TraderSpi::OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	bool bResult = pRspInfo && (pRspInfo->ErrorID != 0);
 
 	if (!bResult)
 	{
-		spdlog::info("ÈÏÖ¤³É¹¦...");
+		spdlog::info("è®¤è¯æˆåŠŸ...");
 
-		CThostFtdcReqUserLoginField loginReq{ 0 };
+		CThostFtdcReqUserLoginField loginReq{0};
 
-		strcpy_s(loginReq.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
-		strcpy_s(loginReq.UserID, (*config)["Front"]["UserID"].as<std::string>().c_str());
-		strcpy_s(loginReq.Password, (*config)["Front"]["Password"].as<std::string>().c_str());
+		strcpy(loginReq.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
+		strcpy(loginReq.UserID, (*config)["Front"]["UserID"].as<std::string>().c_str());
+		strcpy(loginReq.Password, (*config)["Front"]["Password"].as<std::string>().c_str());
 
 		int rt = tdapi->ReqUserLogin(&loginReq, nRequestID++);
 
 		if (!rt)
 		{
-			spdlog::info("½»Ò×Ç°ÖÃµÇÂ¼ÇëÇó·¢ËÍ³É¹¦...");
+			spdlog::info("äº¤æ˜“å‰ç½®ç™»å½•è¯·æ±‚å‘é€æˆåŠŸ...");
 		}
-		else {
-			spdlog::info("½»Ò×Ç°ÖÃµÇÂ¼ÇëÇó·¢ËÍÊ§°Ü...");
+		else
+		{
+			spdlog::info("äº¤æ˜“å‰ç½®ç™»å½•è¯·æ±‚å‘é€å¤±è´¥...");
 		}
 	}
-	else {
+	else
+	{
 		spdlog::error("ErrorId={}, ErrorMsg={}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
 	}
 }
 
-
-///µÇÂ¼ÇëÇóÏìÓ¦
-void TraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// ç™»å½•è¯·æ±‚å“åº”
+void TraderSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 
 	bool bResult = pRspInfo && (pRspInfo->ErrorID != 0);
 
 	if (!bResult)
 	{
-		spdlog::info("ÕË»§µÇÂ¼³É¹¦...");
+		spdlog::info("è´¦æˆ·ç™»å½•æˆåŠŸ...");
 
-		spdlog::info("½»Ò×ÈÕ£º{}", pRspUserLogin->TradingDay);
+		spdlog::info("äº¤æ˜“æ—¥ï¼š{}", pRspUserLogin->TradingDay);
 
-		CThostFtdcQrySettlementInfoConfirmField  settlementConfirmReq{ 0 };
-		spdlog::info("½»Ò×ÈÕ£º{}", (*config)["Front"]["BrokerID"].as<std::string>());
+		CThostFtdcQrySettlementInfoConfirmField settlementConfirmReq{0};
+		spdlog::info("äº¤æ˜“æ—¥ï¼š{}", (*config)["Front"]["BrokerID"].as<std::string>());
 
-		strcpy_s(settlementConfirmReq.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
-		strcpy_s(settlementConfirmReq.InvestorID, (*config)["Front"]["UserID"].as<std::string>().c_str());
+		strcpy(settlementConfirmReq.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
+		strcpy(settlementConfirmReq.InvestorID, (*config)["Front"]["UserID"].as<std::string>().c_str());
 
 		int rt = tdapi->ReqQrySettlementInfoConfirm(&settlementConfirmReq, nRequestID++);
 		if (!rt)
 		{
-			spdlog::info("Í¶×ÊÕß½áËã½á¹ûÈ·ÈÏÇëÇó³É¹¦...");
+			spdlog::info("æŠ•èµ„è€…ç»“ç®—ç»“æœç¡®è®¤è¯·æ±‚æˆåŠŸ...");
 		}
 
-		else {
-			spdlog::info("Í¶×ÊÕß½áËã½á¹ûÈ·ÈÏÇëÇó³É¹¦...");
+		else
+		{
+			spdlog::info("æŠ•èµ„è€…ç»“ç®—ç»“æœç¡®è®¤è¯·æ±‚æˆåŠŸ...");
 		}
 	}
-	else {
+	else
+	{
 		spdlog::error("ErrorId={}, ErrorMsg={}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
 	}
 }
 
-///µÇ³öÇëÇóÏìÓ¦
-void TraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField* pUserLogout, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// ç™»å‡ºè¯·æ±‚å“åº”
+void TraderSpi::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
-
 }
 
-///ÇëÇó²éÑ¯½áËãĞÅÏ¢È·ÈÏÏìÓ¦
-void TraderSpi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField* pSettlementInfoConfirm, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// è¯·æ±‚æŸ¥è¯¢ç»“ç®—ä¿¡æ¯ç¡®è®¤å“åº”
+void TraderSpi::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	bool bResult = pRspInfo && (pRspInfo->ErrorID != 0);
 	if (!bResult)
 	{
-		spdlog::info("Í¶×ÊÕß½áËã½á¹ûÈ·ÈÏ³É¹¦...");
+		spdlog::info("æŠ•èµ„è€…ç»“ç®—ç»“æœç¡®è®¤æˆåŠŸ...");
 
-		//spdlog::info("È·ÈÏÊ±¼ä£º{} {}", pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
+		// spdlog::info("ç¡®è®¤æ—¶é—´ï¼š{} {}", pSettlementInfoConfirm->ConfirmDate, pSettlementInfoConfirm->ConfirmTime);
 
 		is_ready = true;
 	}
-	else {
+	else
+	{
 		spdlog::error("ErrorId={}, ErrorMsg={}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
 	}
-
 }
 
-///ÇëÇó²éÑ¯ºÏÔ¼ÏìÓ¦
-void TraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField* pInstrument, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// è¯·æ±‚æŸ¥è¯¢åˆçº¦å“åº”
+void TraderSpi::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	bool bResult = pRspInfo && (pRspInfo->ErrorID != 0);
 	if (!bResult)
 	{
 		if (pInstrument->ProductClass == THOST_FTDC_APC_FutureSingle)
 		{
-			spdlog::info("²éÑ¯ºÏÔ¼{}½á¹û³É¹¦...", pInstrument->InstrumentID);
+			spdlog::info("æŸ¥è¯¢åˆçº¦{}ç»“æœæˆåŠŸ...", pInstrument->InstrumentID);
 			ids.emplace_back(pInstrument->InstrumentID);
 		}
 	}
-	else {
+	else
+	{
 		spdlog::error("ErrorId={}, ErrorMsg={}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
 	}
 }
 
-TraderSpi::TraderSpi(YAML::Node* config)
+TraderSpi::TraderSpi(YAML::Node *config)
 {
 	this->config = config;
 
@@ -138,13 +140,13 @@ TraderSpi::TraderSpi(YAML::Node* config)
 	tdapi->RegisterSpi(this);
 	tdapi->SubscribePublicTopic(THOST_TERT_RESTART);
 	tdapi->SubscribePrivateTopic(THOST_TERT_RESTART);
-	tdapi->RegisterFront(_strdup((*config)["Front"]["TD_Url"].as<std::string>().c_str()));
+	tdapi->RegisterFront(strdup((*config)["Front"]["TD_Url"].as<std::string>().c_str()));
 }
 
 int TraderSpi::ReqQryInstrument(std::string i)
 {
-	CThostFtdcQryInstrumentField instrumentReq{ 0 };
-	strcpy_s(instrumentReq.InstrumentID, i.c_str());
+	CThostFtdcQryInstrumentField instrumentReq{0};
+	strcpy(instrumentReq.InstrumentID, i.c_str());
 
 	return tdapi->ReqQryInstrument(&instrumentReq, 0);
 }

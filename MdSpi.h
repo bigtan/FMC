@@ -1,4 +1,4 @@
-#include <string>
+ï»¿#include <string>
 #include <limits>
 #include <fstream>
 #include <iostream>
@@ -8,38 +8,35 @@
 #include "yaml-cpp/yaml.h"
 #include "ThostFtdcMdApi.h"
 
-class MdSpi :public CThostFtdcMdSpi
+class MdSpi : public CThostFtdcMdSpi
 {
 public:
-
-
-	///µ±¿Í»§¶ËÓë½»Ò×ºóÌ¨½¨Á¢ÆğÍ¨ĞÅÁ¬½ÓÊ±£¨»¹Î´µÇÂ¼Ç°£©£¬¸Ã·½·¨±»µ÷ÓÃ¡£
+	/// å½“å®¢æˆ·ç«¯ä¸äº¤æ˜“åå°å»ºç«‹èµ·é€šä¿¡è¿æ¥æ—¶ï¼ˆè¿˜æœªç™»å½•å‰ï¼‰ï¼Œè¯¥æ–¹æ³•è¢«è°ƒç”¨ã€‚
 	void OnFrontConnected();
 
-	///µÇÂ¼ÇëÇóÏìÓ¦
-	void OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	/// ç™»å½•è¯·æ±‚å“åº”
+	void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	///¶©ÔÄĞĞÇéÓ¦´ğ
-	void OnRspSubMarketData(CThostFtdcSpecificInstrumentField* pSpecificInstrument, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	/// è®¢é˜…è¡Œæƒ…åº”ç­”
+	void OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	///Éî¶ÈĞĞÇéÍ¨Öª
-	void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField* pDepthMarketData);
+	/// æ·±åº¦è¡Œæƒ…é€šçŸ¥
+	void OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData);
+
 private:
-	CThostFtdcMdApi* mdapi = nullptr;
-
+	CThostFtdcMdApi *mdapi = nullptr;
 
 public:
-
-	MdSpi(YAML::Node* config);
+	MdSpi(YAML::Node *config);
 	~MdSpi();
 
 	bool is_ready = false;
 
 	void Init();
-	int SubscribeMarketData(char* ppInstrumentID[], int nCount);
+	int SubscribeMarketData(char *ppInstrumentID[], int nCount);
 
 private:
-	YAML::Node* config = nullptr;
+	YAML::Node *config = nullptr;
 	std::filesystem::path path;
 	TThostFtdcDateType td;
 

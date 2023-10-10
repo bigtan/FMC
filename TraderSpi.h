@@ -1,44 +1,42 @@
-#pragma once
-#include<string>
-#include<vector>
+ï»¿#pragma once
+#include <string>
+#include <vector>
 #include "yaml-cpp/yaml.h"
 #include "ThostFtdcTraderApi.h"
 
-
-class TraderSpi :public CThostFtdcTraderSpi
+class TraderSpi : public CThostFtdcTraderSpi
 {
 public:
-	///µ±¿Í»§¶ËÓë½»Ò×ºóÌ¨½¨Á¢ÆğÍ¨ĞÅÁ¬½ÓÊ±£¨»¹Î´µÇÂ¼Ç°£©£¬¸Ã·½·¨±»µ÷ÓÃ¡£
+	/// å½“å®¢æˆ·ç«¯ä¸äº¤æ˜“åå°å»ºç«‹èµ·é€šä¿¡è¿æ¥æ—¶ï¼ˆè¿˜æœªç™»å½•å‰ï¼‰ï¼Œè¯¥æ–¹æ³•è¢«è°ƒç”¨ã€‚
 	void OnFrontConnected();
 
-	///¿Í»§¶ËÈÏÖ¤ÏìÓ¦
-	void OnRspAuthenticate(CThostFtdcRspAuthenticateField* pRspAuthenticateField, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	/// å®¢æˆ·ç«¯è®¤è¯å“åº”
+	void OnRspAuthenticate(CThostFtdcRspAuthenticateField *pRspAuthenticateField, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
+	/// ç™»å½•è¯·æ±‚å“åº”
+	void OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	///µÇÂ¼ÇëÇóÏìÓ¦
-	void OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	/// ç™»å‡ºè¯·æ±‚å“åº”
+	void OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	///µÇ³öÇëÇóÏìÓ¦
-	void OnRspUserLogout(CThostFtdcUserLogoutField* pUserLogout, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	/// è¯·æ±‚æŸ¥è¯¢ç»“ç®—ä¿¡æ¯ç¡®è®¤å“åº”
+	void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
-	///ÇëÇó²éÑ¯½áËãĞÅÏ¢È·ÈÏÏìÓ¦
-	void OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField* pSettlementInfoConfirm, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
-
-	///ÇëÇó²éÑ¯ºÏÔ¼ÏìÓ¦
-	void OnRspQryInstrument(CThostFtdcInstrumentField* pInstrument, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast);
+	/// è¯·æ±‚æŸ¥è¯¢åˆçº¦å“åº”
+	void OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast);
 
 public:
 	bool is_ready = false;
 
 	std::vector<std::string> ids;
 
-	TraderSpi(YAML::Node* config);
+	TraderSpi(YAML::Node *config);
 	~TraderSpi();
 
 	void Init();
 	int ReqQryInstrument(std::string i);
 
 private:
-	CThostFtdcTraderApi* tdapi = nullptr;
-	YAML::Node* config = nullptr;
+	CThostFtdcTraderApi *tdapi = nullptr;
+	YAML::Node *config = nullptr;
 };

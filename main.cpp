@@ -9,29 +9,28 @@
 
 using namespace std;
 
-static void split(const std::string& s, std::vector<std::string>& tokens, const std::string& delimiters = " ")
+static void split(const std::string &s, std::vector<std::string> &tokens, const std::string &delimiters = " ")
 {
 	std::string::size_type lastPos = s.find_first_not_of(delimiters, 0);
 	std::string::size_type pos = s.find_first_of(delimiters, lastPos);
-	while (std::string::npos != pos || std::string::npos != lastPos) {
+	while (std::string::npos != pos || std::string::npos != lastPos)
+	{
 		tokens.push_back(s.substr(lastPos, pos - lastPos));
 		lastPos = s.find_first_not_of(delimiters, pos);
 		pos = s.find_first_of(delimiters, lastPos);
 	}
 }
 
-
 int main()
 {
 	YAML::Node config = YAML::LoadFile("./config.yaml");
 
-	TraderSpi* tdspi = new TraderSpi(&config);
+	TraderSpi *tdspi = new TraderSpi(&config);
 
 	tdspi->Init();
 
 	while (!tdspi->is_ready)
 		std::this_thread::sleep_for(1000ms);
-
 
 	std::vector<std::string> instruments;
 
@@ -48,7 +47,8 @@ int main()
 		}
 		spdlog::info("查询所有合约成功");
 	}
-	else {
+	else
+	{
 		for (std::string s : instruments)
 		{
 			std::cout << s << endl;
@@ -60,16 +60,16 @@ int main()
 		}
 	}
 
-	MdSpi* mdspi = new MdSpi(&config);
+	MdSpi *mdspi = new MdSpi(&config);
 	mdspi->Init();
 
 	while (!mdspi->is_ready)
 		std::this_thread::sleep_for(1000ms);
 
-	std::vector<char*> cstrings;
+	std::vector<char *> cstrings;
 	cstrings.reserve(tdspi->ids.size());
 
-	for (auto& s : tdspi->ids)
+	for (auto &s : tdspi->ids)
 		cstrings.push_back(&s[0]);
 
 	while (mdspi->SubscribeMarketData(cstrings.data(), tdspi->ids.size()) != 0)

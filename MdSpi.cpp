@@ -1,78 +1,77 @@
-#include "MdSpi.h"
+ï»¿#include "MdSpi.h"
 
 inline double MdSpi::clean_double(double x)
 {
 	return x == std::numeric_limits<double>::max() ? 0.0 : x;
 }
 
-
-///µ±¿Í»§¶ËÓë½»Ò×ºóÌ¨½¨Á¢ÆğÍ¨ĞÅÁ¬½ÓÊ±£¨»¹Î´µÇÂ¼Ç°£©£¬¸Ã·½·¨±»µ÷ÓÃ¡£
+/// å½“å®¢æˆ·ç«¯ä¸äº¤æ˜“åå°å»ºç«‹èµ·é€šä¿¡è¿æ¥æ—¶ï¼ˆè¿˜æœªç™»å½•å‰ï¼‰ï¼Œè¯¥æ–¹æ³•è¢«è°ƒç”¨ã€‚
 void MdSpi::OnFrontConnected()
 {
 
-	spdlog::info("Á¬½ÓÇ°ÖÃ»ú³É¹¦...");
+	spdlog::info("è¿æ¥å‰ç½®æœºæˆåŠŸ...");
 
-	CThostFtdcReqUserLoginField loginReq{ 0 };
+	CThostFtdcReqUserLoginField loginReq{0};
 
-	strcpy_s(loginReq.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
-	strcpy_s(loginReq.UserID, (*config)["Front"]["UserID"].as<std::string>().c_str());
-	strcpy_s(loginReq.Password, (*config)["Front"]["Password"].as<std::string>().c_str());
+	strcpy(loginReq.BrokerID, (*config)["Front"]["BrokerID"].as<std::string>().c_str());
+	strcpy(loginReq.UserID, (*config)["Front"]["UserID"].as<std::string>().c_str());
+	strcpy(loginReq.Password, (*config)["Front"]["Password"].as<std::string>().c_str());
 
 	int requestID = 0;
 	int rt = mdapi->ReqUserLogin(&loginReq, requestID);
 
 	if (!rt)
-		spdlog::info("·¢ËÍµÇÂ¼ÇëÇó³É¹¦...");
+		spdlog::info("å‘é€ç™»å½•è¯·æ±‚æˆåŠŸ...");
 	else
-		spdlog::info("·¢ËÍµÇÂ¼ÇëÇóÊ§°Ü...");
+		spdlog::info("å‘é€ç™»å½•è¯·æ±‚å¤±è´¥...");
 }
 
-///µÇÂ¼ÇëÇóÏìÓ¦
-void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// ç™»å½•è¯·æ±‚å“åº”
+void MdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField *pRspUserLogin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	bool bResult = pRspInfo && (pRspInfo->ErrorID != 0);
 
 	if (!bResult)
 	{
-		spdlog::info("µÇÂ¼ÇëÇóÏìÓ¦...");
-		spdlog::info("½»Ò×ÈÕ£º {}", pRspUserLogin->TradingDay);
-		spdlog::info("µÇÂ¼Ê±¼ä£º {}", pRspUserLogin->LoginTime);
-		spdlog::info("¾­¼ÍÉÌ£º {}", pRspUserLogin->BrokerID);
-		spdlog::info("ÕÊ»§Ãû£º {}", pRspUserLogin->UserID);
+		spdlog::info("ç™»å½•è¯·æ±‚å“åº”...");
+		spdlog::info("äº¤æ˜“æ—¥ï¼š {}", pRspUserLogin->TradingDay);
+		spdlog::info("ç™»å½•æ—¶é—´ï¼š {}", pRspUserLogin->LoginTime);
+		spdlog::info("ç»çºªå•†ï¼š {}", pRspUserLogin->BrokerID);
+		spdlog::info("å¸æˆ·åï¼š {}", pRspUserLogin->UserID);
 
-		//td = pRspUserLogin->TradingDay;
-		strncpy_s(td, pRspUserLogin->TradingDay, sizeof(td));
+		// td = pRspUserLogin->TradingDay;
+		strcpy(td, pRspUserLogin->TradingDay);
 
 		is_ready = true;
 	}
 	else
-		spdlog::error("·µ»Ø´íÎó--->>> ErrorID={} , ErrorMsg = {}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
+		spdlog::error("è¿”å›é”™è¯¯--->>> ErrorID={} , ErrorMsg = {}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
 }
 
-///¶©ÔÄĞĞÇéÓ¦´ğ
-void MdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField* pSpecificInstrument, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+/// è®¢é˜…è¡Œæƒ…åº”ç­”
+void MdSpi::OnRspSubMarketData(CThostFtdcSpecificInstrumentField *pSpecificInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast)
 {
 	bool bResult = pRspInfo && (pRspInfo->ErrorID != 0);
 	if (!bResult)
 	{
-		spdlog::info("¶©ÔÄĞĞÇé³É¹¦...");
-		spdlog::info("ºÏÔ¼´úÂë: {}³É¹¦", pSpecificInstrument->InstrumentID);
+		spdlog::info("è®¢é˜…è¡Œæƒ…æˆåŠŸ...");
+		spdlog::info("åˆçº¦ä»£ç : {}æˆåŠŸ", pSpecificInstrument->InstrumentID);
 	}
 	else
-		spdlog::error("·µ»Ø´íÎó--->>> ErrorID={} , ErrorMsg = {}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
+		spdlog::error("è¿”å›é”™è¯¯--->>> ErrorID={} , ErrorMsg = {}", pRspInfo->ErrorID, pRspInfo->ErrorMsg);
 }
 
-///Éî¶ÈĞĞÇéÍ¨Öª
-void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField* pDepthMarketData)
+/// æ·±åº¦è¡Œæƒ…é€šçŸ¥
+void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData)
 {
 	char buffer[64];
 
-	sprintf_s(buffer, "%s", td);
+	sprintf(buffer, "%s", td);
 
 	if (!std::filesystem::exists(path / buffer))
 		std::filesystem::create_directories(path / buffer);
 
-	sprintf_s(buffer, "%s/%s_%s.csv", td, pDepthMarketData->InstrumentID, td);
+	sprintf(buffer, "%s/%s_%s.csv", td, pDepthMarketData->InstrumentID, td);
 
 	auto full_path = path / buffer;
 
@@ -88,14 +87,13 @@ void MdSpi::OnRtnDepthMarketData(CThostFtdcDepthMarketDataField* pDepthMarketDat
 	file << pDepthMarketData->TradingDay << "," << pDepthMarketData->ExchangeID << "," << clean_double(pDepthMarketData->LastPrice) << "," << clean_double(pDepthMarketData->PreSettlementPrice) << "," << clean_double(pDepthMarketData->PreClosePrice) << "," << pDepthMarketData->PreOpenInterest << "," << clean_double(pDepthMarketData->OpenPrice) << "," << clean_double(pDepthMarketData->HighestPrice) << "," << clean_double(pDepthMarketData->LowestPrice) << "," << pDepthMarketData->Volume << "," << pDepthMarketData->Turnover << "," << pDepthMarketData->OpenInterest << "," << clean_double(pDepthMarketData->UpperLimitPrice) << "," << clean_double(pDepthMarketData->LowerLimitPrice) << "," << pDepthMarketData->UpdateTime << "," << pDepthMarketData->UpdateMillisec << "," << clean_double(pDepthMarketData->BidPrice1) << "," << pDepthMarketData->BidVolume1 << "," << clean_double(pDepthMarketData->AskPrice1) << "," << pDepthMarketData->AskVolume1 << "," << clean_double(pDepthMarketData->BidPrice2) << "," << pDepthMarketData->BidVolume2 << "," << clean_double(pDepthMarketData->AskPrice2) << "," << pDepthMarketData->AskVolume2 << "," << clean_double(pDepthMarketData->BidPrice3) << "," << pDepthMarketData->BidVolume3 << "," << clean_double(pDepthMarketData->AskPrice3) << "," << pDepthMarketData->AskVolume3 << "," << clean_double(pDepthMarketData->BidPrice4) << "," << pDepthMarketData->BidVolume4 << "," << clean_double(pDepthMarketData->AskPrice4) << "," << pDepthMarketData->AskVolume4 << "," << clean_double(pDepthMarketData->BidPrice5) << "," << pDepthMarketData->BidVolume5 << "," << clean_double(pDepthMarketData->AskPrice5) << "," << pDepthMarketData->AskVolume5 << "," << clean_double(pDepthMarketData->AveragePrice) << "," << pDepthMarketData->ActionDay << "," << pDepthMarketData->InstrumentID << "," << pDepthMarketData->ExchangeInstID << "," << clean_double(pDepthMarketData->BandingUpperPrice) << "," << clean_double(pDepthMarketData->BandingLowerPrice) << std::endl;
 }
 
-
-MdSpi::MdSpi(YAML::Node* config)
+MdSpi::MdSpi(YAML::Node *config)
 {
 	this->config = config;
 	mdapi = CThostFtdcMdApi::CreateFtdcMdApi(".\\flow\\");
 
 	mdapi->RegisterSpi(this);
-	mdapi->RegisterFront(_strdup((*config)["Front"]["MD_Url"].as<std::string>().c_str()));
+	mdapi->RegisterFront(strdup((*config)["Front"]["MD_Url"].as<std::string>().c_str()));
 
 	path = std::filesystem::path((*config)["History"]["Path"].as<std::string>());
 }
@@ -112,7 +110,7 @@ void MdSpi::Init()
 	mdapi->Init();
 }
 
-int MdSpi::SubscribeMarketData(char* ppInstrumentID[], int nCount)
+int MdSpi::SubscribeMarketData(char *ppInstrumentID[], int nCount)
 {
 	return mdapi->SubscribeMarketData(ppInstrumentID, nCount);
 }
